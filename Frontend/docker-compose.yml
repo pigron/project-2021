@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  vue_app:
+    container_name: facility_frontend
+    image: asdfgh213/vue_front:latest
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    restart: always
+  vue_nginx:
+    image: asdfgh213/vue_nginx:latest
+    build: .
+    ports:
+      - 80:80
+    volumes:
+      - ./dist:/usr/share/nginx/html

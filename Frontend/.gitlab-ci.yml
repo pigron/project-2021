@@ -1,0 +1,53 @@
+stages:
+  - build
+  - test
+  - push
+  - deploy
+
+docker_build:
+  stage: build
+  before_script:
+    - echo "Front Dockerfile Build...And...RUN!"
+  script:
+    - docker -H 192.168.16.28 build -t front:test .
+    - docker -H 192.168.16.28 images
+
+docker_test:
+  stage: test
+  before_script:
+    - echo "Front Dockerfile Test..............."
+  script:
+    - docker -H 192.168.16.28 run --name front-test -d -p 8880:8000 front:test
+    - docker -H 192.168.16.28 ps | grep front-test
+    - docker -H 192.168.16.28 rm -f front-test  
+
+docker_push:
+  stage: push
+  before_script:
+    - echo "Private Regisry Push................."
+  script:
+    - docker -H 192.168.16.28 tag front:test priv.images.io:30000/front:test
+    - docker -H 192.168.16.28 push priv.images.io:30000/front:test
+
+k8s_test_deploy:
+  stage: deploy
+  before_script:
+    - echo "K8S deploy TEST with yaml................"
+  script:
+    - kubectl delete -f ./vue-deploy.yml || true
+    - kubectl apply -f ./vue-deploy.yml 
+    - kubectl apply -f ./vue-deploy-svc.yml
+
+k8s_prod_deploy:
+  stage: deploy
+  rules:
+    - when: manual
+  before_script:
+    - echo "K8S deploy production with yaml................"
+  script:
+    - docker -H 192.168.16.28 tag front:test priv.images.io:30000/front:${VERSION}
+    - docker -H 192.168.16.28 push priv.images.io:30000/front:${VERSION}
+    - kubectl apply -f ./vue-prod-deploy.yml 
+    - kubectl set image deploy vue-production vue-frontend=priv.images.io:30000/front:${VERSION} -n product --record=true
+    - kubectl apply -f ./vue-prod-deploy-svc.yml
+    
