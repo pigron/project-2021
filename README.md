@@ -10,3 +10,5 @@
 관리 프로그램: Docker, Kubernetes, GitLab, Lens</br>
 
 협업툴: Mattermost</br>
+
+[사진]
