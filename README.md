@@ -11,6 +11,6 @@
 
 협업툴: Mattermost</br>
 
-자세한 내용
+자세한 내용</br>
 [notion]
 https://holy-lamp-ece.notion.site/35174318d8b140588a2d6d8a7c7bd954
